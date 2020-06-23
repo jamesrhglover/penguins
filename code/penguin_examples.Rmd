@@ -216,3 +216,13 @@ ggplot(., aes(x = flipper_length_mm,
 ```
 
 
+#### JAmes Additions
+``` {r}
+penguins %>% 
+  filter(sex %in% c("FEMALE", "MALE")) %>% 
+  ggplot(., aes(x = flipper_length_mm,
+                            y = body_mass_g)) +
+  geom_boxplot(aes(fill=sex)) + 
+  theme_minimal()
+
+```
