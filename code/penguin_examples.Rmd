@@ -1,7 +1,7 @@
 ---
-title: "Graph examples with penguin_size data"
-author: "Allison Horst"
-date: "6/5/2020"
+title: "Graph examples with penguins"
+author: "James Glover"
+date: "20/08/2020"
 output: html_document
 ---
 
@@ -9,129 +9,126 @@ output: html_document
 library(tidyverse)
 library(here)
 library(gt)
-knitr::opts_chunk$set(echo = TRUE)
+library(ggthemes)
+
+theme_set(theme_light())
+#theme_set(theme_dark())
+
+knitr::opts_chunk$set(echo = FALSE)
 ```
 
 ### Get the data
 
-These examples use the simplified 'penguins_size.csv' availabe in the repo. 
+# These examples use the simplified 'penguins_size.csv' availabe in the repo. 
 
-```{r}
+```{r warning=FALSE}
 penguins <- read_csv(here("data","penguins_size.csv"))
 ```
 ## Example graphs
 
 #### Penguin mass vs. flipper length:
 
-```{r}
-mass_flipper <- ggplot(data = penguins, 
+```{r warning=FALSE}
+ggplot(data = penguins, 
                        aes(x = flipper_length_mm,
                            y = body_mass_g)) +
   geom_point(aes(color = species, 
                  shape = species),
-             size = 3,
-             alpha = 0.8) +
+             size = 2,
+             alpha = 0.9) +
+  #theme_void() +
   theme_minimal() +
-  scale_color_manual(values = c("darkorange","purple","cyan4")) +
-  labs(title = "Penguin size, Palmer Station LTER",
-       subtitle = "Flipper length and body mass for Adelie, Chinstrap and Gentoo Penguins",
+  #theme_few() +
+  #theme_calc() + 
+  #theme_classic() +
+  #scale_color_manual(values = c("#A8AD00","#6699CC","#C5003E")) +
+  #scale_fill_brewer(palette="Set1") +
+  #scale_color_brewer(palette = "Blues") + 
+  scale_color_brewer(type	= 'qual', palette = 'Dark2') + 
+  labs(title = "Flipper length and body mass",
+       subtitle = "The Gentoo Penguins have the largest Flippers and Body Mass",
        x = "Flipper length (mm)",
        y = "Body mass (g)",
        color = "Penguin species",
        shape = "Penguin species") +
-  theme(legend.position = c(0.2, 0.7),
+  theme(legend.position = c(0.2, 0.75),
         legend.background = element_rect(fill = "white", color = NA),
         plot.title.position = "plot",
         plot.caption = element_text(hjust = 0, face= "italic"),
         plot.caption.position = "plot")
 
-mass_flipper
-
-ggsave(here("figures","mass_flipper.png"), width = 8, height = 5)
 ```
 
 #### Flipper length vs. culmen length
 
-```{r}
-flipper_culmen <- ggplot(data = penguins,
-                         aes(x = flipper_length_mm,
+```{r warning=FALSE}
+ggplot(data = penguins,
+                         aes(x = body_mass_g,
                              y = culmen_length_mm)) +
   geom_point(aes(color = species, 
                  shape = species),
-             size = 3,
-             alpha = 0.8) +
+             size = 2,
+             alpha = 0.9) +
   theme_minimal() +
-  scale_color_manual(values = c("darkorange","purple","cyan4")) +
-  labs(title = "Flipper and culmen length",
-       subtitle = "Dimensions for Adelie, Chinstrap and Gentoo Penguins at Palmer Station LTER",
+  scale_color_brewer(type	= 'qual', palette = 'Dark2') + 
+  labs(title = "Flipper and Body Mass",
+       subtitle = "The Chinstrap Pengiuns generally have larger Culmens (Beaks)",
        x = "Flipper length (mm)",
        y = "Culmen length (mm)",
        color = "Penguin species",
        shape = "Penguin species") +
-  theme(legend.position = c(0.85, 0.15),
+  theme(legend.position = c(0.88, 0.2),
         legend.background = element_rect(fill = "white", color = NA),
         plot.title.position = "plot",
         plot.caption = element_text(hjust = 0, face= "italic"),
         plot.caption.position = "plot")
-
-flipper_culmen
-
-ggsave(here("figures","flipper_culmen.png"), width = 8, height = 5)
 
 ```
 #### Flipper length vs. culmen length
 
-```{r}
-culmen_len_dep <- ggplot(data = penguins,
-                         aes(x = culmen_length_mm,
-                             y = culmen_depth_mm,
-                             group = species)) +
+```{r warning=FALSE}
+ggplot(data = penguins,
+       aes(x = culmen_length_mm
+           ,y = culmen_depth_mm
+           ,group = species
+           )) +
   geom_point(aes(color = species, 
                  shape = species),
-             size = 3,
+             size = 2,
              alpha = 0.8) +
   geom_smooth(method = "lm", se = FALSE, aes(color = species)) +
-  theme_minimal() +
-  scale_color_manual(values = c("darkorange","purple","cyan4")) +
-  labs(title = "Penguin culmen dimensions",
-       subtitle = "Culmen length and depth for Adelie, Chinstrap and Gentoo Penguins at Palmer Station LTER",
+  theme_light() + 
+  scale_color_brewer(type	= 'qual', palette = 'Dark2') + 
+  labs(title = "Culmen (Breaks) length and depth",
+       subtitle = "Each Groups breaks depth increases with length",
        x = "Culmen length (mm)",
        y = "Culmen depth (mm)",
        color = "Penguin species",
        shape = "Penguin species") +
-  theme(legend.position = c(0.85, 0.15),
+  theme(legend.position = c(0.9, 0.17),
         legend.background = element_rect(fill = "white", color = NA),
+        legend.title = element_text(size = 10),
+        legend.text = element_text(size = 8),
         plot.title.position = "plot",
         plot.caption = element_text(hjust = 0, face= "italic"),
         plot.caption.position = "plot")
-
-culmen_len_dep
-
-ggsave(here("figures","culmen_len_dep.png"), width = 8, height = 5)
 
 ```
 
 #### Simpson's paradox, omitting species in graph above:  
 
-```{r}
-culmen_no_species <- ggplot(data = penguins,
-                         aes(x = culmen_length_mm,
-                             y = culmen_depth_mm)) +
-  geom_point() +
-  theme_minimal() +
-  scale_color_manual(values = c("darkorange","purple","cyan4")) +
-  labs(title = "Penguin culmen dimensions (omit species)",
-       subtitle = "Palmer Station LTER",
+```{r warning=FALSE}
+ggplot(data = penguins,
+       aes(x = culmen_length_mm
+           ,y = culmen_depth_mm
+           )) +
+  geom_point(colour = "cyan4", size = 1, alpha = 1, shape = 1) +
+  theme_light() + 
+  labs(title = "Simpson's paradox",
+       subtitle = "However the data suggests that the depth decreases with length",
        x = "Culmen length (mm)",
        y = "Culmen depth (mm)") +
-  theme(plot.title.position = "plot",
-        plot.caption = element_text(hjust = 0, face= "italic"),
-        plot.caption.position = "plot") +
-  geom_smooth(method = "lm", se = FALSE, color = "gray50")
-
-culmen_no_species
-
-ggsave(here("figures", "culmen_no_species.png"), width = 8, height = 5)
+  geom_smooth(method = "lm", se = FALSE, color = "cyan4") 
 
 ```
 
@@ -139,85 +136,138 @@ ggsave(here("figures", "culmen_no_species.png"), width = 8, height = 5)
 
 Flipper lengths histogram:  
 
-```{r}
+```{r warning=FALSE}
 
-flipper_hist <- ggplot(data = penguins, aes(x = flipper_length_mm)) +
+ggplot(data = penguins, aes(x = flipper_length_mm)) +
   geom_histogram(aes(fill = species), 
-                 alpha = 0.5, 
+                 alpha = 0.65, 
                  position = "identity") +
-  scale_fill_manual(values = c("darkorange","purple","cyan4")) +
+  scale_fill_brewer(palette = 'Dark2') + 
   theme_minimal() +
   labs(x = "Flipper length (mm)",
        y = "Frequency",
-       title = "Penguin flipper lengths")
+       title = "Penguin flipper lengths",
+       subtitle = "Gentoo have the largest flippers"
+       )
 
-flipper_hist
+```
 
-ggsave(here("figures","flipper_hist.png"), width = 8, height = 6)
+Flipper lengths density plot:  
+
+```{r warning=FALSE}
+
+ggplot(data = penguins, aes(flipper_length_mm, fill = species)) +
+  geom_density(alpha = 0.65) +
+  scale_fill_brewer(palette = 'Dark2') + 
+  theme_light() + 
+  #theme_minimal() +
+  labs(x = "Flipper length (mm)",
+       y = "Frequency",
+       title = "Penguin flipper lengths",
+       subtitle = "Gentoo have the largest flippers")
+
+ggplot(data = penguins, aes(flipper_length_mm,after_stat(count), fill = species)) +
+  geom_density(position = "fill", alpha = 0.5) +
+  scale_fill_brewer(palette = 'Dark2') + 
+  theme_light()
+
+ggplot(data = penguins, aes(flipper_length_mm,after_stat(count), fill = species)) +
+  geom_density(position = "stack", alpha = 0.5) +
+  scale_fill_brewer(palette = 'Dark2') + 
+  theme_light()
 
 ```
 
 Flipper lengths boxplots + jitter: 
 
-```{r}
-flipper_box <- ggplot(data = penguins, aes(x = species, y = flipper_length_mm)) +
+```{r warning=FALSE}
+ggplot(data = penguins, aes(x = species, y = flipper_length_mm)) +
   geom_boxplot(aes(color = species), width = 0.3, show.legend = FALSE) +
-  geom_jitter(aes(color = species), width = 0.2, alpha = 0.5, show.legend = FALSE) +
-  scale_color_manual(values = c("darkorange","purple","cyan4")) +
-  theme_minimal() +
+  geom_jitter(aes(color = species), width = 0.1, alpha = 0.65, show.legend = FALSE) +
+  scale_color_brewer(palette = 'Dark2') + 
+  theme_light() + 
   labs(x = "Species",
-       y = "Flipper length (mm)")
+       y = "Flipper length (mm)",
+       title = "Penguin flipper lengths",
+       subtitle = "Gentoo have the largest flippers"
+       )
 
-flipper_box
+
+ggplot(data = penguins, aes(species, flipper_length_mm)) +
+    geom_boxplot(aes(color = species), width = 0.3, show.legend = TRUE) +
+    geom_jitter(aes(color = species), width = 0.1, size=0.4, alpha = 0.65, show.legend = FALSE) +
+    scale_color_brewer(palette = 'Dark2') + 
+    theme_light() + 
+  labs(y = "Flipper length (mm)",
+       title = "Penguin flipper lengths",
+       subtitle = "Gentoo have the largest flippers"
+       ) + 
+  theme(
+    axis.text.x = element_blank(),
+    legend.position = c(0.82, 0.2),
+    legend.background = element_rect(fill = "white", color = NA),
+    legend.title = element_text(size = 10),
+    legend.text = element_text(size = 8),
+    plot.title.position = "plot",
+    plot.caption = element_text(hjust = 0, face= "italic"),
+    plot.caption.position = "plot")
+
 ```
 
 Body mass histograms: 
 
-```{r}
+```{r warning=FALSE}
 
-mass_hist <- ggplot(data = penguins, aes(x = body_mass_g)) +
+ggplot(data = penguins, aes(x = body_mass_g)) +
   geom_histogram(aes(fill = species), 
                  alpha = 0.5, 
                  position = "identity") +
   scale_fill_manual(values = c("darkorange","purple","cyan4")) +
-  theme_minimal() +
-  labs(x = "Body mass (g)",
-       y = "Frequency",
-       title = "Penguin body mass")
-
-mass_hist
-
-ggsave(here("figures","mass_hist.png"), width = 8, height = 6)
+  theme_light() + 
+  labs(x = "Body Mass (g)",
+       y = '',
+       title = "Penguin Body Mass",
+       subtitle = "Gentoo are the largest Penguin"
+       ) + 
+  theme(
+    axis.text.x = element_blank(),
+    legend.position = c(0.82, 0.8),
+    legend.background = element_rect(fill = "white", color = NA),
+    legend.title = element_text(size = 10),
+    legend.text = element_text(size = 8),
+    plot.title.position = "plot",
+    plot.caption = element_text(hjust = 0, face= "italic"),
+    plot.caption.position = "plot")
 
 ```
-#### Random viz
 
-Include penguin sex: 
-```{r}
-
+### Include penguin sex: 
+```{r warning=FALSE}
 penguins %>% 
   filter(sex %in% c("FEMALE", "MALE")) %>% 
 ggplot(., aes(x = flipper_length_mm,
                             y = body_mass_g)) +
-  geom_point(aes(color = sex)) +
-  theme_minimal() +
-  scale_color_manual(values = c("darkorange","cyan4")) +
+  geom_point(aes(color = sex), alpha = 0.6) +
+  theme_light() + 
+  scale_color_manual(values = c("red","blue")) +
   labs(title = "Penguin flipper and body mass",
-       subtitle = "Dimensions for male and female Adelie, Chinstrap and Gentoo Penguins at Palmer Station LTER",
+       subtitle = "The Males appear to be the larger of the two groups",
        x = "Flipper length (mm)",
        y = "Body mass (g)",
-       color = "Penguin sex") +
-  theme(legend.position = "bottom",
+       color = "Sex") +
+  theme(legend.position = c(0.85, 0.18),
         legend.background = element_rect(fill = "white", color = NA),
+        legend.title = element_text(size = 10),
+        legend.text = element_text(size = 8),
         plot.title.position = "plot",
         plot.caption = element_text(hjust = 0, face= "italic"),
-        plot.caption.position = "plot") +
+        plot.caption.position = "plot"
+        ) +
   facet_wrap(~species)
 ```
 
 
-#### JAmes Additions
-``` {r}
+```{r warning=FALSE}
 penguins %>% 
   filter(sex %in% c("FEMALE", "MALE")) %>% 
   ggplot(., aes(x = flipper_length_mm,
@@ -225,4 +275,29 @@ penguins %>%
   geom_boxplot(aes(fill=sex)) + 
   theme_minimal()
 
+penguins %>% 
+  filter(sex %in% c("FEMALE", "MALE")) %>% 
+  
+  ggplot(., aes(x = flipper_length_mm,
+                            y = body_mass_g)) +
+  geom_boxplot(aes(color = sex), alpha = 0.6) +
+  geom_jitter(aes(color = sex), alpha = 0.6) + 
+  theme_light() + 
+  scale_color_manual(values = c("red","blue")) + 
+  labs(x = "Flipper length (mm)",
+       y = "Body mass (g)",
+       title = "Penguin flipper and body mass",
+       subtitle = "The Males appear to be the larger of the two groups"
+       ) + 
+  theme(
+    axis.text.x = element_blank(),
+    legend.position = c(0.82, 0.2),
+    legend.background = element_rect(fill = "white", color = NA),
+    legend.title = element_text(size = 10),
+    legend.text = element_text(size = 8),
+    plot.title.position = "plot",
+    plot.caption = element_text(hjust = 0, face= "italic"),
+    plot.caption.position = "plot"
+ ) +
+  facet_wrap(~species)
 ```
